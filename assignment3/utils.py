@@ -30,6 +30,8 @@ class neural_networks():
             (x_train, y_train), (x_test, y_test) = mnist.load_data()
             self.validation_split = 10000.0/60000.0
 
+        import pdb
+        pdb.set_trace()
         self.x_train = x_train.astype('float32')
         self.x_test = x_test.astype('float32')
         self.x_train /= 255
@@ -40,31 +42,30 @@ class neural_networks():
 
     def get_model(self, normalize=False):
         model = Sequential()
+        nlayers = 1
+
+        if 'layers' in self.parameters.keys():
+            nlayers = self.parameters['layers']
+
+        dropout = [0.2] * nlayers
+        if 'dropout' in self.parameters.keys():
+            dropout = self.parameters['dropout']
 
         if self.nn_type == 'RNN':
-            model.add(SimpleRNN(512, input_shape=self.x_train[0].shape))
+            model.add(SimpleRNN(512, input_shape=self.x_train[0].shape, activation='relu'))
+            model.add(Dropout(dropout[0]))
             if 'normalization' in self.parameters.keys():
                 if self.parameters['normalization'] == True:
                     model.add(BatchNormalization())
-
-            if 'dropout' in self.parameters.keys():
-                model.add(Dropout(self.parameters['dropout']))
         
         if self.nn_type == 'LSTM':
-            nlayers = 1
-            if 'layers' in self.parameters.keys():
-                nlayers = self.parameters['layers']
-
-            dropout = 0.0
-            if 'dropout' in self.parameters.keys():
-                dropout = self.parameters['dropout']
-
             for i in range(nlayers-1):
                 model.add(LSTM(128, input_shape=self.x_train[0].shape, activation='relu', return_sequences=True))
-                model.add(Dropout(dropout))
+                model.add(Dropout(dropout[i]))
 
             model.add(LSTM(128, input_shape=self.x_train[0].shape, activation='relu'))
-            model.add(Dropout(dropout))
+            model.add(Dropout(dropout[nlayers-1]))
+        #if self.nn_type == 'GAN':
 
         model.add(Dense(self.num_classes, activation='softmax'))
         model.summary()
