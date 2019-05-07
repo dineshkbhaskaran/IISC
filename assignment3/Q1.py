@@ -11,9 +11,14 @@ def run_q1():
     #args = {'dropout' : 0.2, 'normalization' : True}
     #nn = neural_networks(mode, nclasses, args)
     #nn.execute([128], [.01, 0.1])
-    
-    mode = 'LSTM'
-    args = {'layers' : 3 }
+    #
+    #mode = 'LSTM'
+    #args = {'layers' : 3 }
+    #nn = neural_networks(mode, nclasses, args)
+    #nn.execute([128], [.01, 0.1])
+
+    mode = 'GAN'
+    args = {'architecture': 'DNN'}
     nn = neural_networks(mode, nclasses, args)
     nn.execute([128], [.01, 0.1])
 

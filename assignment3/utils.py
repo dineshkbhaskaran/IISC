@@ -1,4 +1,5 @@
 import time
+from GAN import GAN
 from keras import backend 
 from keras.datasets import mnist
 from keras.models import Sequential
@@ -30,8 +31,6 @@ class neural_networks():
             (x_train, y_train), (x_test, y_test) = mnist.load_data()
             self.validation_split = 10000.0/60000.0
 
-        import pdb
-        pdb.set_trace()
         self.x_train = x_train.astype('float32')
         self.x_test = x_test.astype('float32')
         self.x_train /= 255
@@ -65,7 +64,8 @@ class neural_networks():
 
             model.add(LSTM(128, input_shape=self.x_train[0].shape, activation='relu'))
             model.add(Dropout(dropout[nlayers-1]))
-        #if self.nn_type == 'GAN':
+
+            return
 
         model.add(Dense(self.num_classes, activation='softmax'))
         model.summary()
@@ -73,6 +73,15 @@ class neural_networks():
         return model
 
     def fit(self, lr, bs):
+        if self.nn_type == 'GAN':
+            size = self.x_train.shape[1] * self.x_train.shape[2]
+            self.x_train = self.x_train.reshape(60000, size)
+            self.x_test = self.x_test.reshape(10000, size)
+
+            model = GAN(size, self.parameters)
+            model.fit(self.x_train, self.y_train, bs)
+            return
+
         model = self.get_model()
         opt = SGD(lr, momentum=0.9)
 
